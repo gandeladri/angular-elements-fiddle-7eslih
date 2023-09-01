@@ -17,6 +17,7 @@ export class TimerManagerService {
       this.timerDurationMilliseconds,
       () => {
         console.log('Temporizador 1 iniciado.');
+        this.timerDone1 = 'Timer 1 is running!';
       },
       () => {
         console.log('Temporizador 1 completado.');
@@ -40,6 +41,7 @@ export class TimerManagerService {
       this.timerDurationMilliseconds,
       () => {
         console.log('Temporizador 2 iniciado.');
+        this.timerDone2 = 'Timer 2 is running!';
       },
       () => {
         console.log('Temporizador 2 completado.');
