@@ -26,6 +26,13 @@ export class TimerService {
     if (restarting) {
       onStart = this.timers[key]?.onStart ?? this.emptyFunction;
       onComplete = this.timers[key]?.onComplete ?? this.emptyFunction;
+    } else if (key in this.timers) {
+      onStart = onStart
+        ? onStart
+        : this.timers[key]?.onStart ?? this.emptyFunction;
+      onComplete = onComplete
+        ? onComplete
+        : this.timers[key]?.onComplete ?? this.emptyFunction;
     }
     if (restarting || key in this.timers) {
       this.cancelTimer(key);
