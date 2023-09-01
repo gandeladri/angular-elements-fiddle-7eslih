@@ -1,32 +1,36 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { timer, Subscription, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
-export class TimerService {
+export class TimerService implements OnDestroy {
   private timers: {
     [key: string]: {
       timer$: Subscription;
       onDestroy$: Subject<void>;
-      onStart: () => void | undefined;
-      onComplete: () => void | undefined;
+      onStart?: () => void;
+      onComplete?: () => void;
     };
   } = {};
-  private emptyFunction = () => {};
+  // eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-empty-function
+  private emptyFunction: () => void = () => {};
 
   startTimer(
     key: string,
     milliseconds: number,
     onStart?: () => void,
     onComplete?: () => void,
-    restarting: boolean = false
+    restarting = false
   ): void {
+    // Save onStart, onComplete functions before cancelling if required
     if (restarting) {
       onStart = this.timers[key]?.onStart ?? this.emptyFunction;
       onComplete = this.timers[key]?.onComplete ?? this.emptyFunction;
     } else if (key in this.timers) {
+      // Try to replace onStart, onComplete functions with whatever comes on parameters
+      // only if running startTimer method while the timer hasn't finished yet.
       onStart = onStart
         ? onStart
         : this.timers[key]?.onStart ?? this.emptyFunction;
@@ -44,8 +48,11 @@ export class TimerService {
     const timer$ = timer(milliseconds)
       .pipe(takeUntil(onDestroy$))
       .subscribe(() => {
-        if (this.timers[key]?.onComplete) {
-          this.timers[key].onComplete();
+        if (key in this.timers) {
+          const completedTimer = this.timers[key];
+          if (completedTimer.onComplete) {
+            completedTimer.onComplete();
+          }
         }
       });
     this.timers[key] = { timer$, onDestroy$, onStart, onComplete };
