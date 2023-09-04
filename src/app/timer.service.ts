@@ -22,7 +22,7 @@ export class TimerService implements OnDestroy {
    * Start Timer
    * @param key The timer key
    * @param milliseconds Duration in milliseconds
-   * @param count Number of times to repeat. If not set, or 0, will repeat indefinitely.
+   * @param count Number of times to repeat. If not set, or 0, will execute once.
    * @param onStart Function that executes before running timer
    * @param onComplete Function that executes after timer ran
    * @param resetting Reset timer and use previously defined start/complete functions
@@ -53,7 +53,7 @@ export class TimerService implements OnDestroy {
       onStart();
     }
     const onDestroy$ = new Subject<void>();
-    const timer$ = timer(milliseconds)
+    const timer$ = timer(milliseconds, 1)
       .pipe(takeUntil(onDestroy$))
       .subscribe(() => {
         if (key in this.timers) {
@@ -63,7 +63,7 @@ export class TimerService implements OnDestroy {
           }
         }
       });
-    this.timers[key] = { timer$, onDestroy$, onStart, onComplete };
+    this.timers[key] = { timer$, onDestroy$, count, onStart, onComplete };
   }
 
   /**
@@ -86,7 +86,7 @@ export class TimerService implements OnDestroy {
    * @param milliseconds Duration in milliseconds
    */
   resetTimer(key: string, milliseconds: number): void {
-    this.startTimer(key, milliseconds, undefined, undefined, true);
+    this.startTimer(key, milliseconds, 1, undefined, undefined, true);
   }
 
   ngOnDestroy(): void {
