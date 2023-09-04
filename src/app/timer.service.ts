@@ -10,6 +10,7 @@ export class TimerService implements OnDestroy {
     [key: string]: {
       timer$: Subscription;
       onDestroy$: Subject<void>;
+      count: number;
       onStart?: () => void;
       onComplete?: () => void;
     };
@@ -17,20 +18,27 @@ export class TimerService implements OnDestroy {
   // eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-empty-function
   private emptyFunction: () => void = () => {};
 
+  /**
+   * Start Timer
+   * @param key The timer key
+   * @param milliseconds Duration in milliseconds
+   * @param count Number of times to repeat. If not set, or 0, will repeat indefinitely.
+   * @param onStart Function that executes before running timer
+   * @param onComplete Function that executes after timer ran
+   * @param resetting Reset timer and use previously defined start/complete functions
+   */
   startTimer(
     key: string,
     milliseconds: number,
+    count: number = 0,
     onStart?: () => void,
     onComplete?: () => void,
-    restarting = false
+    resetting = false
   ): void {
-    // Save onStart, onComplete functions before cancelling if required
-    if (restarting) {
+    if (resetting) {
       onStart = this.timers[key]?.onStart ?? this.emptyFunction;
       onComplete = this.timers[key]?.onComplete ?? this.emptyFunction;
     } else if (key in this.timers) {
-      // Try to replace onStart, onComplete functions with whatever comes on parameters
-      // only if running startTimer method while the timer hasn't finished yet.
       onStart = onStart
         ? onStart
         : this.timers[key]?.onStart ?? this.emptyFunction;
@@ -38,7 +46,7 @@ export class TimerService implements OnDestroy {
         ? onComplete
         : this.timers[key]?.onComplete ?? this.emptyFunction;
     }
-    if (restarting || key in this.timers) {
+    if (resetting || key in this.timers) {
       this.cancelTimer(key);
     }
     if (onStart) {
@@ -58,6 +66,10 @@ export class TimerService implements OnDestroy {
     this.timers[key] = { timer$, onDestroy$, onStart, onComplete };
   }
 
+  /**
+   * Cancel Timer
+   * @param key The timer key
+   */
   cancelTimer(key: string): void {
     const timerItem = this.timers[key];
     if (timerItem) {
@@ -68,6 +80,11 @@ export class TimerService implements OnDestroy {
     }
   }
 
+  /**
+   * Restart timer and use previously defined start/complete functions
+   * @param key The timer key
+   * @param milliseconds Duration in milliseconds
+   */
   resetTimer(key: string, milliseconds: number): void {
     this.startTimer(key, milliseconds, undefined, undefined, true);
   }

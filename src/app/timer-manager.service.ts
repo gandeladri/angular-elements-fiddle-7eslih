@@ -7,6 +7,8 @@ import { TimerService } from './timer.service';
 export class TimerManagerService {
   public timerDone1: string = '';
   public timerDone2: string = '';
+  public timer1Interval: number = 0;
+  public timer2Interval: number = 0;
   private timerDurationMilliseconds = 1000; // Duración fija de 1 segundo
 
   constructor(private timerService: TimerService) {}
@@ -17,11 +19,12 @@ export class TimerManagerService {
       this.timerDurationMilliseconds,
       () => {
         console.log('Temporizador 1 iniciado.');
-        this.timerDone1 = 'Timer 1 is running!';
+        this.timerDone1 = `Timer 1 is running! - Interval: ${++this
+          .timer1Interval}`;
       },
       () => {
         console.log('Temporizador 1 completado.');
-        this.timerDone1 = 'Timer 1 Done!';
+        this.timerDone1 = `Timer 1 Done! - Interval: ${this.timer1Interval}`;
       }
     );
   }
@@ -41,11 +44,12 @@ export class TimerManagerService {
       this.timerDurationMilliseconds,
       () => {
         console.log('Temporizador 2 iniciado.');
-        this.timerDone2 = 'Timer 2 is running!';
+        this.timerDone2 = `Timer 2 is running! - Interval: ${++this
+          .timer2Interval}`;
       },
       () => {
         console.log('Temporizador 2 completado.');
-        this.timerDone2 = 'Timer 2 Done!';
+        this.timerDone2 = `Timer 2 Done! - Interval: ${this.timer2Interval}`;
       }
     );
   }
